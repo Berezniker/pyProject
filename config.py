@@ -1,3 +1,4 @@
+from collections import namedtuple
 from enum import Enum
 import platform
 import os
@@ -52,6 +53,18 @@ ICON_APP_PATH = os.path.join(DATA_PATH, ICON_APP_NAME)
 
 ICON_NOTIFICATION_PATH = os.path.join(DATA_PATH, ICON_NOTIFICATION_NAME)
 
-TTIME_VALUE = 3.0
+TTIME_VALUE: float = 3.0
 
-MIN_N_ACTION = 5
+MIN_N_ACTION: int = 5
+
+DURATION_NOTIFICATION: int = 5
+
+RawData = namedtuple(
+    typename="RawData",
+    field_names="timestamp, button, state, x, y"
+)
+
+Data = namedtuple(
+    typename="Data",
+    field_names="timestamp, x, y"
+)

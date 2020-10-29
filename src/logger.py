@@ -1,8 +1,14 @@
-# from src.pipeline.feature_extraction import extractor
+from src.pipeline.feature_extraction import extractor
 from src.pipeline.preprocessing import preprocessing
+from config import RawData, TTIME_VALUE
+from typing import Callable, List
 from pynput import mouse
-import config
 import time
+
+
+# link:
+# https://docs.python.org/3/library/collections.html#collections.namedtuple
+# https://pythonhosted.org/pynput/mouse.html#monitoring-the-mouse
 
 
 def data_capture_loop() -> None:
@@ -14,37 +20,62 @@ def data_capture_loop() -> None:
         "x"         - x-coordinate
         "y"         - y-coordinate
     """
-    start_time = time.time()
-    raw_data = list()
-    state = "Released"
+    start_time: float = time.time()
+    raw_data: List[RawData] = list()
+    click_state: str = "Released"
 
-    def check_end():
-        ddtm = raw_data[-1][0] - raw_data[0][0]
-        return ddtm < config.TTIME_VALUE
+    def check_end(action: Callable):
+        """Decorator"""
 
-    def on_move(x, y):
-        move_state = 'Drag' if state == 'Pressed' else 'Move'
-        raw_data.append(
-            (time.time() - start_time, "NoButton", move_state, x, y)
-        )
-        return check_end()
+        def wrapper(*args, **kwargs) -> bool:
+            action(*args, **kwargs)
+            ddtm = raw_data[-1].timestamp - raw_data[0].timestamp
+            return ddtm < TTIME_VALUE
 
-    def on_click(x, y, button, pressed):
-        nonlocal state
-        state = "Pressed" if pressed else "Released"
-        raw_data.append(
-            (time.time() - start_time, button.name.capitalize(), state, x, y)
-        )
-        return check_end()
+        return wrapper
 
-    def on_scroll(x, y, dx, dy):
+    @check_end
+    def on_move(x: int, y: int):
+        """
+        The callback to call when mouse move events occur.
+        """
+        move_state = "Drag" if click_state == "Pressed" else "Move"
+        raw_data.append(RawData(
+            timestamp=time.time() - start_time,
+            button="NoButton",
+            state=move_state,
+            x=x, y=y
+        ))
+
+    @check_end
+    def on_click(x: int, y: int, button: mouse.Button, pressed: bool):
+        """
+        The callback to call when a mouse button is clicked.
+        """
+        nonlocal click_state
+        click_state = "Pressed" if pressed else "Released"
+        raw_data.append(RawData(
+            timestamp=time.time() - start_time,
+            button=button.name.capitalize(),
+            state=click_state,
+            x=x, y=y
+        ))
+
+    @check_end
+    def on_scroll(x: int, y: int, dx: int, dy: int):
+        """
+        The callback to call when mouse scroll events occur.
+        """
         scroll_state = "Down" if dy < 0 else "Up"
-        raw_data.append(
-            (time.time() - start_time, "Scroll", scroll_state, x, y)
-        )
-        return check_end()
+        raw_data.append(RawData(
+            timestamp=time.time() - start_time,
+            button="Scroll",
+            state=scroll_state,
+            x=x, y=y
+        ))
 
     while True:
+        # A listener for mouse events
         with mouse.Listener(
                 on_move=on_move,
                 on_click=on_click,
@@ -52,9 +83,8 @@ def data_capture_loop() -> None:
             listener.join()
             # stopped when the chek_end() returns False
         print(len(raw_data))
-        preprocessing(raw_data[:-1])
         if len(raw_data) < 100: break
-        # extractor(preprocessing(raw_data[:-1]))
+        extractor(preprocessing(raw_data))
         raw_data.clear()
 
 
