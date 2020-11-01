@@ -1,5 +1,6 @@
 from src.pipeline.feature_extraction import extractor
 from src.pipeline.preprocessing import preprocessing
+from src.pipeline.model import authentication
 from config import RawData, TTIME_VALUE
 from typing import Callable, List
 from pynput import mouse
@@ -11,7 +12,7 @@ import time
 # https://pythonhosted.org/pynput/mouse.html#monitoring-the-mouse
 
 
-def data_capture_loop() -> None:
+def data_capture_loop(user_id: int) -> None:
     """
     Collects data from the user's computer mouse
         "timestamp" - time in seconds from start of recording
@@ -19,6 +20,9 @@ def data_capture_loop() -> None:
         "state"     - state type: ['Move', 'Pressed', 'Released', 'Drag', 'Down', 'Up']
         "x"         - x-coordinate
         "y"         - y-coordinate
+
+    :param user_id: User ID
+    :return: None, when lock is needed
     """
     start_time: float = time.time()
     raw_data: List[RawData] = list()
@@ -82,13 +86,17 @@ def data_capture_loop() -> None:
                 on_scroll=on_scroll) as listener:
             listener.join()
             # stopped when the chek_end() returns False
-        print(len(raw_data))
-        if len(raw_data) < 100: break
-        extractor(preprocessing(raw_data))
+        # ------------------------------------------ #
+        feature = extractor(preprocessing(raw_data))
+        if not authentication(user_id, feature):
+            break  # block
         raw_data.clear()
+        # -- time: 15 - 30 ms ----------------------- #
+
+    return
 
 
 if __name__ == "__main__":
     print("Run!")
-    data_capture_loop()
+    data_capture_loop(0)
     print("End of run.")

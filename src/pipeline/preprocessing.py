@@ -15,10 +15,10 @@ def _quartile(data: np.ndarray, col: int) -> np.ndarray:
     q1 = np.percentile(data[:, col], q=25)  # lower (first) quartile
     q3 = np.percentile(data[:, col], q=75)  # upper (third) quartile
     iqr = q3 - q1  # InterQuartileRange
-    lower_fence = (q1 - 1.5 * iqr)
     upper_fence = (q3 + 1.5 * iqr)
-    data[data[:, col] < lower_fence, col] = lower_fence
-    data[data[:, col] > upper_fence, col] = upper_fence
+    if data[:, col].max() > upper_fence:
+        data[data[:, col] > upper_fence, col] = upper_fence
+
     return data
 
 
@@ -57,6 +57,4 @@ def preprocessing(raw_data: List[RawData]) -> np.ndarray:
 
 
 if __name__ == "__main__":
-    print("Run!")
-    # preprocessing(...)
-    print("End of run.")
+    pass

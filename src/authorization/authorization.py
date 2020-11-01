@@ -1,12 +1,12 @@
 from src.authorization.database import UserDB
 
 
-def authorization(kind: str = "") -> None:
+def authorization(kind: str = "") -> int:
     """
     Authorization loop
 
     :kind: "R" - Register, "L" - LogIn
-    :return: None
+    :return: User ID
     """
     kind = kind.upper()
     while kind not in ('R', 'L'):
@@ -21,6 +21,6 @@ def authorization(kind: str = "") -> None:
         ok, problem = func(username, password)
         if ok:
             print(f"Welcome, {username}!")
-            return
+            return db.get_user_id(username, password)
         else:
             print(problem)
