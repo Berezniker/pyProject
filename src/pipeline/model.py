@@ -1,13 +1,16 @@
-from config import TRUST_MODEL_PARAMS, ONE_CLASS_SVM_PARAMS, MIN_TRAIN_SIZE
+from config import TRUST_MODEL_PARAMS, ONE_CLASS_SVM_PARAMS, MIN_TRAIN_SIZE, TTIME_VALUE
 from src.pipeline.database import DataDB
+from sklearn.preprocessing import StandardScaler
 from sklearn.svm import OneClassSVM
 from joblib import dump, load
 from math import exp
 import numpy as np
+import time
 
 # link:
 # https://joblib.readthedocs.io/en/latest/
 # https://scikit-learn.org/stable/modules/generated/sklearn.svm.OneClassSVM.html
+# https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.StandardScaler.html
 
 
 class TrustModel:
@@ -31,8 +34,10 @@ class TrustModel:
         self.T_value = 100.0
         self.T_lockout = max(0.0, min(lockout, self.T_value))
         if False:
+            self.scaler = ...
             self.clf = load("model.joblib")
         else:
+            self.scaler = StandardScaler()
             self.clf = OneClassSVM(**ONE_CLASS_SVM_PARAMS)
         self.train = False
 
@@ -43,7 +48,8 @@ class TrustModel:
         :param X: Set of samples
         :param save: dump model to
         """
-        self.clf.fit(X)
+        X_transform = self.scaler.fit_transform(X)
+        self.clf.fit(X_transform)
         self.train = True
         if save:
             dump(self.clf, filename=f"model.joblib")
@@ -57,7 +63,8 @@ class TrustModel:
         :param X: Feature vector
         :return: classifier trust value
         """
-        return self.clf.decision_function(X.reshape(1, -1))
+        X_transform = self.scaler.transform(X.reshape(1, -1))
+        return self.clf.decision_function(X_transform)
 
     def decision(self, X: np.ndarray) -> bool:
         """
@@ -82,6 +89,7 @@ class TrustModel:
 
 model = TrustModel(**TRUST_MODEL_PARAMS)
 
+
 def authentication(user_id: int, feature: np.ndarray) -> bool:
     db = DataDB(user_id)
     if model.train:
@@ -92,7 +100,15 @@ def authentication(user_id: int, feature: np.ndarray) -> bool:
             model.restart()  # for the feature
         return prediction
 
-    if db.get_train_data_size() < MIN_TRAIN_SIZE:
+    # --- DEBUG
+    db_size = db.get_train_data_size()
+    t = time.gmtime(round((MIN_TRAIN_SIZE - db_size) * TTIME_VALUE))
+    t = time.strftime('%H:%M:%S', t)
+    print(f"Data [{db_size:<6}/{MIN_TRAIN_SIZE}] ~ "
+          f"{t} left until the end of data collection",
+          end='\r', flush=True)
+    # ---
+    if db_size < MIN_TRAIN_SIZE:
         db.add(list(feature))
     else:
         X = np.array(db.get_train_data())[:, 1:]

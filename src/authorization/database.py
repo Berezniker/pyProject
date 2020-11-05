@@ -40,7 +40,7 @@ class UserDB:
     def add(self, username: str, password: str) -> Tuple[bool, str]:
         if not is_valid_name(username):
             return False, f"Name `{username}` is not valid\n"\
-                          f"Valid Name:"\
+                          f"Valid Name:\n"\
                           f" * 4 <= length name <= 16\n"\
                           f" * consists only [a-zA-Z0-9_]"
         if self._username_exist(username):

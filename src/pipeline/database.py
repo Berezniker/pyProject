@@ -1,4 +1,4 @@
-from config import USER_DATABASE_PATH, DATA_TABLE_NAME
+from config import USER_DATABASE_PATH, USER_TABLE_NAME, DATA_TABLE_NAME
 import pandas as pd
 import sqlite3
 
@@ -18,7 +18,7 @@ class DataDB:
              f1  REAL, f2  REAL, f3  REAL, f4  REAL, f5  REAL, f6  REAL,
              f7  REAL, f8  REAL, f9  REAL, f10 REAL, f11 REAL, f12 REAL,
              f13 REAL, f14 REAL, f15 REAL, f16 REAL, f17 REAL,
-             FOREIGN KEY(user_id) REFERENCES {config.USER_TABLE_NAME}(user_id))
+             FOREIGN KEY(user_id) REFERENCES {USER_TABLE_NAME}(user_id))
         """
         self._cursor.execute(sql)
         self._connection.commit()
