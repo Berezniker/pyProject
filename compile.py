@@ -6,7 +6,7 @@ import os
 
 def compile_project() -> None:
     """
-    Compiles and builds the project
+    Compiles and builds the project with PyInstaller
     documentation: https://pyinstaller.readthedocs.io/en/stable/index.html
     options: https://pyinstaller.readthedocs.io/en/stable/usage.html
 
@@ -20,17 +20,23 @@ def compile_project() -> None:
             --onefile
             --name {APP_NAME}
             --icon {ICON_APP_PATH}
+            --hidden-import="sklearn.utils._cython_blas"
         {os.path.join(PROJECT_PATH, "main.py")}
     """
     # TODO add --noconsole
+    # TODO --paths venv/Lib ?
     command = " ".join(command.split())  # must be in one line
 
     compile_time = time.time()
     status_code = os.system(command)
-    compile_time = time.strftime('%M:%S', time.gmtime(round(time.time() - compile_time)))
-    app_size = os.path.getsize(os.path.join(PROJECT_PATH, f"{APP_NAME}.exe")) >> 20
+    compile_time = round(time.time() - compile_time)
+    compile_time = time.strftime('%M:%S', time.gmtime(compile_time))
+
+    app_path = os.path.join(PROJECT_PATH, f"{APP_NAME}.exe")
+    app_size = os.path.getsize(app_path) >> 20  # Byte -> MegaByte
 
     if status_code == 0:
+        # delete temporary data
         shutil.rmtree(os.path.join(PROJECT_PATH, "build"))
         os.remove(os.path.join(PROJECT_PATH, f"{APP_NAME}.spec"))
 

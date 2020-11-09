@@ -1,5 +1,4 @@
 from typing import Tuple
-import pandas as pd
 import sqlite3
 import config
 import re
@@ -8,7 +7,10 @@ import re
 def is_valid_name(name: str) -> bool:
     """
     Checks name validity
-    len(name) in [4, 16] and w = [a-zA-Z0-9_]
+    len(name) in [4, 16] and chars in [a-zA-Z0-9_]
+
+    :param name: Username
+    :return: True if name is valid False otherwise
     """
     return bool(re.fullmatch(pattern=r"\w{4,16}", string=name))
 
@@ -39,12 +41,14 @@ class UserDB:
 
     def add(self, username: str, password: str) -> Tuple[bool, str]:
         if not is_valid_name(username):
-            return False, f"Name `{username}` is not valid\n"\
-                          f"Valid Name:\n"\
-                          f" * 4 <= length name <= 16\n"\
-                          f" * consists only [a-zA-Z0-9_]"
+            return False, "Invalid username"
+            # return False, f"Name `{username}` is not valid\n"\
+            #               f"Valid Name:\n"\
+            #               f" * 4 <= length name <= 16\n"\
+            #               f" * consists only [a-zA-Z0-9_]"
         if self._username_exist(username):
-            return False, f"User `{username}` is already registered"
+            return False, "Already registered"
+            # return False, f"User `{username}` is already registered"
 
         sql = f"""
             INSERT INTO {self._table}
@@ -83,12 +87,13 @@ class UserDB:
         self._connection.commit()
         return
 
-    def __print(self) -> None:
-        print(pd.read_sql_query(
-            sql=f"SELECT * FROM {self._table}",
-            con=self._connection,
-            index_col="user_id"))
-        return
+    # def __print(self) -> None:
+    #     import pandas as pd
+    #     print(pd.read_sql_query(
+    #         sql=f"SELECT * FROM {self._table}",
+    #         con=self._connection,
+    #         index_col="user_id"))
+    #     return
 
     def __del__(self):
         self._connection.commit()

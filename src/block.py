@@ -3,7 +3,7 @@ import ctypes
 import os
 
 
-def block() -> None:
+def system_lock() -> None:
     """
     Block the system
 
@@ -22,5 +22,5 @@ def block() -> None:
 
 if __name__ == '__main__':
     print("Run!")
-    block()
+    system_lock()
     print("End of run.")

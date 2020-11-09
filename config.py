@@ -5,6 +5,17 @@ import platform
 import os
 
 
+# --- CHANGE THIS! ---
+
+PROJECT_PATH: str = "C:\\Users\\Alexey\\Desktop\\study\\Diplom\\pyProject"
+
+# --------------------------------------------------
+
+DATA_PATH: str = os.path.join(PROJECT_PATH, "data")
+
+CODE_PATH: str = os.path.join(PROJECT_PATH, "src")
+
+
 class OSType(Enum):
     Windows = 0
     Linux = 1
@@ -27,17 +38,6 @@ def get_os_type() -> OSType:
 
 
 OS_TYPE: OSType = get_os_type()
-
-
-# --- CHANGE THIS! ---
-
-PROJECT_PATH: str = "C:\\Users\\Alexey\\Desktop\\study\\Diplom\\pyProject"
-
-DATA_PATH: str = os.path.join(PROJECT_PATH, "data")
-
-CODE_PATH: str = os.path.join(PROJECT_PATH, "src")
-
-# --------------------------------------------------
 
 # --- main.py
 

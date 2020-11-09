@@ -1,5 +1,4 @@
 from config import USER_DATABASE_PATH, USER_TABLE_NAME, DATA_TABLE_NAME
-import pandas as pd
 import sqlite3
 
 
@@ -56,15 +55,16 @@ class DataDB:
         self._connection.commit()
         return
 
-    def __print(self) -> None:
-        print(pd.read_sql_query(
-            sql=f"""SELECT *
-                    FROM {self._table}
-                    WHERE user_id = {self._user_id}
-            """,
-            con=self._connection,
-            index_col="user_id"))
-        return
+    # def __print(self) -> None:
+    #     import pandas as pd
+    #     print(pd.read_sql_query(
+    #         sql=f"""SELECT *
+    #                 FROM {self._table}
+    #                 WHERE user_id = {self._user_id}
+    #         """,
+    #         con=self._connection,
+    #         index_col="user_id"))
+    #     return
 
     def __del__(self):
         self._connection.commit()

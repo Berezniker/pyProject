@@ -2,12 +2,24 @@
 
 ![Architecture](data/architecture.png)
 
-Compile:
-```
-$ ./compile
+### Load:
+```sh
+$ git clone https://github.com/Berezniker/pyProject.git
+$ cd pyProject
 ```
 
-Start:
+### !
+Go to `config.py` and change `PROJECT_PATH` to your absolute file path.
+
+### Compile:
+```sh
+$ source venv/bin/activate
+$ python compile.py
+$ deactivate
 ```
-$ ./MMouse
+(this process can take up to two minutes)
+
+### Start:
+```sh
+$ ./MMouse.exe
 ```
