@@ -16,6 +16,7 @@ def notification(title: str,
     :return: None
     """
     if config.OS_TYPE == config.OSType.Windows:
+        # https://stackoverflow.com/questions/12575708/notification-using-python
         win10toast.ToastNotifier().show_toast(
             title=title,
             msg=message,

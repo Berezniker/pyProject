@@ -2,6 +2,13 @@ import numpy as np
 
 
 def direction_bin(data: np.ndarray, n_bin: int = 8) -> np.ndarray:
+    """
+    ...
+
+    :param data: (x, y)-coordinates
+    :param n_bin: number of bins
+    :return: ...
+    """
     grad_x, grad_y = np.gradient(data[:, 1]), np.gradient(data[:, 2])
     direction = np.rad2deg(np.arctan2(grad_y, grad_x)) + 180
     direction = (direction % n_bin).astype(np.uint8)
@@ -9,6 +16,12 @@ def direction_bin(data: np.ndarray, n_bin: int = 8) -> np.ndarray:
 
 
 def get_det(data: np.ndarray) -> np.ndarray:
+    """
+    ...
+
+    :param data: ...
+    :return: ...
+    """
     Pn_Po = np.array([data[-1, 1] - data[0, 1], data[-1, 2] - data[0, 2]])
     x0, y0 = data[0, 1], data[0, 2]
     det = np.array([np.linalg.det([Pn_Po, [x - x0, y - y0]])
@@ -17,6 +30,13 @@ def get_det(data: np.ndarray) -> np.ndarray:
 
 
 def get_bin(dist: int, threshold: int = 1000) -> int:
+    """
+    ...
+
+    :param dist: ...
+    :param threshold: threshold
+    :return: bin
+    """
     if dist <= threshold:
         return dist // (threshold // 5)
     elif dist <= 2 * threshold:

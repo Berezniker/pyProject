@@ -2,6 +2,7 @@ from src.authorization.database import UserDB
 import tkinter as tk
 import functools
 
+
 # link:
 # https://docs.python.org/3/library/tk.html
 # https://python-scripts.com/tkinter

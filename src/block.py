@@ -10,6 +10,7 @@ def system_lock() -> None:
     :return: None
     """
     if config.OS_TYPE == config.OSType.Windows:
+        # https://overcoder.net/q/1031394/блокировка-рабочей-станции-windows-с-помощью-python
         ctypes.windll.user32.LockWorkStation()
     elif config.OS_TYPE == config.OSType.Linux:
         command = "loginctl lock-session"

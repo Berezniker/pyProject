@@ -1,11 +1,14 @@
-from config import TRUST_MODEL_PARAMS, ONE_CLASS_SVM_PARAMS, MIN_TRAIN_SIZE, TTIME_VALUE
+from config import (TRUST_MODEL_PARAMS, ONE_CLASS_SVM_PARAMS,
+                    MIN_TRAIN_SIZE, TTIME_VALUE, DATA_PATH)
 from src.pipeline.database import DataDB
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import OneClassSVM
-from joblib import dump, load
 from math import exp
 import numpy as np
+import joblib
 import time
+import os
+
 
 # link:
 # https://joblib.readthedocs.io/en/latest/
@@ -15,6 +18,7 @@ import time
 
 class TrustModel:
     def __init__(self,
+                 user_id: int,
                  A: float = 0.00,
                  B: float = 0.25,
                  C: float = 1.00,
@@ -23,36 +27,44 @@ class TrustModel:
         """
         Dynamic Trust Model (DTM)
 
+        :param user_id: User ID
         :param A: Threshold for penalty or reward, A > 0
         :param B: Width of the sigmoid,            B > 0
         :param C: Maximum reward,                  C > 0
         :param D: Maximum penalty,                 D > 0
         :param lockout: Minimum T-value after which blocking occurs
-                        0 <= lockout <= T-value=100
+                        0 <= lockout <= T-value <= 100
         """
         self.A, self.B, self.C, self.D = A, B, C, D
+        self.uid = user_id
         self.T_value = 100.0
         self.T_lockout = max(0.0, min(lockout, self.T_value))
-        if False:
-            self.scaler = ...
-            self.clf = load("model.joblib")
+        self.model_path = os.path.join(DATA_PATH, f"model_{user_id}.joblib")
+        self.scaler_path = os.path.join(DATA_PATH, f"scaler_{user_id}.joblib")
+
+        if os.path.exists(self.model_path) and \
+                os.path.exists(self.scaler_path):
+            self.scaler = joblib.load(filename=self.scaler_path)
+            self.clf = joblib.load(filename=self.model_path)
+            self.train = True
         else:
             self.scaler = StandardScaler()
             self.clf = OneClassSVM(**ONE_CLASS_SVM_PARAMS)
-        self.train = False
+            self.train = False
 
-    def fit(self, X, save: bool = False) -> "TrustModel":
+    def fit(self, X, save: bool = True) -> "TrustModel":
         """
         Detects the soft boundary of the set of samples X.
 
         :param X: Set of samples
-        :param save: dump model to
+        :param save: dump model
         """
         X_transform = self.scaler.fit_transform(X)
         self.clf.fit(X_transform)
         self.train = True
         if save:
-            dump(self.clf, filename=f"model.joblib")
+            joblib.dump(value=self.scaler, filename=self.scaler_path)
+            joblib.dump(value=self.clf, filename=self.model_path)
         return self
 
     def predict(self, X: np.ndarray) -> float:
@@ -79,25 +91,31 @@ class TrustModel:
         self.T_value = min(max(self.T_value + delta_T, 0.0), 100.0)
         return self.T_value < self.T_lockout
 
-    def restart(self) -> None:
-        """
-        Sets the T-value to the maximum after re-authorization
-        """
-        self.T_value = 100.0
-        return
 
-
-model = TrustModel(**TRUST_MODEL_PARAMS)
+model = None
 
 
 def authentication(user_id: int, feature: np.ndarray) -> bool:
+    """
+    Verification of the user's biometric data.
+
+    :param user_id: User ID
+    :param feature: Feature vector
+    :return: True, if the user has passed the authentication process
+             False otherwise
+    """
+    global model
+    if model is None:
+        model = TrustModel(user_id, **TRUST_MODEL_PARAMS)
+
     db = DataDB(user_id)
     if model.train:
         prediction = model.decision(feature)
         if prediction and model.T_value == 100.0:
             db.add(list(feature))
         if not prediction:
-            model.restart()  # for the feature
+            del model
+            model = None
         return prediction
 
     # --- DEBUG
@@ -108,6 +126,7 @@ def authentication(user_id: int, feature: np.ndarray) -> bool:
           f"{t} left until the end of data collection",
           end='\r', flush=True)
     # ---
+
     if db_size < MIN_TRAIN_SIZE:
         db.add(list(feature))
     else:
