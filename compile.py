@@ -1,10 +1,26 @@
 from config import PROJECT_PATH, APP_NAME, ICON_APP_PATH
+import argparse
 import shutil
 import time
 import os
 
 
-def compile_project() -> None:
+def add_arguments(argparser) -> None:
+    """
+    Parse command line arguments
+
+    :return: None
+    """
+    argparser.add_argument(
+        "-k", "--keep-temporary-file",
+        dest="keep_temporary_file",
+        action="store_true",
+        help="save temporary files after compilation"
+    )
+    return
+
+
+def compile_project(keep_temporary_file: bool = False) -> None:
     """
     Compiles and builds the project with PyInstaller
     documentation: https://pyinstaller.readthedocs.io/en/stable/index.html
@@ -35,7 +51,7 @@ def compile_project() -> None:
     app_path = os.path.join(PROJECT_PATH, f"{APP_NAME}.exe")
     app_size = os.path.getsize(app_path) >> 20  # Byte -> MegaByte
 
-    if status_code == 0:
+    if status_code == 0 and not keep_temporary_file:
         # delete temporary data
         shutil.rmtree(os.path.join(PROJECT_PATH, "build"))
         os.remove(os.path.join(PROJECT_PATH, f"{APP_NAME}.spec"))
@@ -46,6 +62,9 @@ def compile_project() -> None:
 
 
 if __name__ == '__main__':
+    argparser = argparse.ArgumentParser(description="Compile project")
+    add_arguments(argparser)
+    args = argparser.parse_args()
     print("Run!")
-    compile_project()
+    compile_project(args.keep_temporary_file)
     print("End of run.")

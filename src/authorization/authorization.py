@@ -8,6 +8,23 @@ import functools
 # https://python-scripts.com/tkinter
 
 
+def one_shot_login(login: str, password: str) -> int:
+    db = UserDB()
+    user_id = -1
+    ok, problem = db.check_login(
+        username=login,
+        password=password
+    )
+    if ok:
+        user_id = db.get_user_id(
+            username=login,
+            password=password
+        )
+    else:
+        print(problem)
+    return user_id
+
+
 def login(mode: str) -> int:
     """
     User data verification
@@ -36,8 +53,8 @@ def login(mode: str) -> int:
         nonlocal user_id
         master.destroy()
         user_id = db.get_user_id(
-            username.get(),
-            password.get()
+            username=username.get(),
+            password=password.get()
         )
         return
 
@@ -86,8 +103,10 @@ def login(mode: str) -> int:
             return
         name = username.get()
         pswd = password.get()
-        ok, problem = func(username=name,
-                           password=pswd)
+        ok, problem = func(
+            username=name,
+            password=pswd
+        )
         if ok:
             success = True
             tk.Label(

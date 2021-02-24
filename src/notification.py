@@ -1,4 +1,3 @@
-import win10toast
 import config
 import time
 import os
@@ -16,6 +15,7 @@ def notification(title: str,
     :return: None
     """
     if config.OS_TYPE == config.OSType.Windows:
+        import win10toast
         # https://stackoverflow.com/questions/12575708/notification-using-python
         win10toast.ToastNotifier().show_toast(
             title=title,
@@ -25,7 +25,7 @@ def notification(title: str,
         )
     elif config.OS_TYPE == config.OSType.Mac:
         # http://osxh.ru/terminal/command/osascript
-        command = f'''osascript -s h -e 'display notification "{message}" with title "{title}"'''
+        command = f'''osascript -s h -e \'display notification "{message}" with title "{title}"\''''
         os.system(command)
         time.sleep(duration)
     elif config.OS_TYPE == config.OSType.Linux:

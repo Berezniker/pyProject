@@ -5,9 +5,7 @@ import platform
 import os
 
 
-# --- CHANGE THIS! ---
-
-PROJECT_PATH: str = "C:\\Users\\Alexey\\Desktop\\study\\Diplom\\pyProject"
+PROJECT_PATH: str = os.getcwd()
 
 # --------------------------------------------------
 
