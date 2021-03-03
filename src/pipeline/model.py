@@ -1,8 +1,8 @@
-from config import (TRUST_MODEL_PARAMS, ONE_CLASS_SVM_PARAMS,
-                    MIN_TRAIN_SIZE, TTIME_VALUE, DATA_PATH)
 from src.pipeline.database import DataDB
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import OneClassSVM
+from config import DATA_PATH
+from typing import Dict
 from math import exp
 import numpy as np
 import joblib
@@ -17,13 +17,16 @@ import os
 
 
 class TrustModel:
-    def __init__(self,
-                 user_id: int,
-                 A: float = 0.00,
-                 B: float = 0.25,
-                 C: float = 1.00,
-                 D: float = 1.00,
-                 lockout: float = 90.0):
+    def __init__(
+            self,
+            user_id: int,
+            A: float = 0.00,
+            B: float = 0.25,
+            C: float = 1.00,
+            D: float = 1.00,
+            lockout: float = 90.0,
+            one_class_svm_params: Dict[str] = {}
+    ):
         """
         Dynamic Trust Model (DTM)
 
@@ -49,7 +52,7 @@ class TrustModel:
             self.train = True
         else:
             self.scaler = StandardScaler()
-            self.clf = OneClassSVM(**ONE_CLASS_SVM_PARAMS)
+            self.clf = OneClassSVM(**one_class_svm_params)
             self.train = False
 
     def fit(self, X, save: bool = True) -> "TrustModel":
@@ -95,18 +98,31 @@ class TrustModel:
 model = None
 
 
-def authentication(user_id: int, feature: np.ndarray) -> bool:
+def authentication(user_id: int, feature: np.ndarray, args) -> bool:
     """
     Verification of the user's biometric data.
 
     :param user_id: User ID
     :param feature: Feature vector
+    :param args: Command line arguments
     :return: True, if the user has passed the authentication process
              False otherwise
     """
     global model
     if model is None:
-        model = TrustModel(user_id, **TRUST_MODEL_PARAMS)
+        model = TrustModel(
+            user_id=user_id,
+            A=args.trust_model_a,
+            B=args.trust_model_b,
+            C=args.trust_model_c,
+            D=args.trust_model_d,
+            lockout=args.trust_model_lockout,
+            one_class_svm_params={
+                "kernel": args.one_class_svm_kernel,
+                "gamma": args.one_class_svm_gamma,
+                "nu": args.one_class_svm_nu
+            }
+        )
 
     db = DataDB(user_id)
     if model.train:
@@ -120,14 +136,14 @@ def authentication(user_id: int, feature: np.ndarray) -> bool:
 
     # --- DEBUG
     db_size = db.get_train_data_size()
-    t = time.gmtime(round((MIN_TRAIN_SIZE - db_size) * TTIME_VALUE))
+    t = time.gmtime(round((args.min_train_size - db_size) * args.ttime_value))
     t = time.strftime('%H:%M:%S', t)
-    print(f"Data [{db_size:<6}/{MIN_TRAIN_SIZE}] ~ "
+    print(f"Data [{db_size:<6}/{args.min_train_size}] ~ "
           f"{t} left until the end of data collection",
           end='\r', flush=True)
     # ---
 
-    if db_size < MIN_TRAIN_SIZE:
+    if db_size < args.min_train_size:
         db.add(list(feature))
     else:
         X = np.array(db.get_train_data())[:, 1:]

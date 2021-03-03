@@ -3,11 +3,11 @@ import numpy as np
 
 def direction_bin(data: np.ndarray, n_bin: int = 8) -> np.ndarray:
     """
-    ...
+    Get direction bin
 
     :param data: (x, y)-coordinates
     :param n_bin: number of bins
-    :return: ...
+    :return: bin of driving directions
     """
     grad_x, grad_y = np.gradient(data[:, 1]), np.gradient(data[:, 2])
     direction = np.rad2deg(np.arctan2(grad_y, grad_x)) + 180
@@ -17,23 +17,23 @@ def direction_bin(data: np.ndarray, n_bin: int = 8) -> np.ndarray:
 
 def get_det(data: np.ndarray) -> np.ndarray:
     """
-    ...
+    Get determinant
 
-    :param data: ...
-    :return: ...
+    :param data: (x, y)-coordinates
+    :return: determinant
     """
-    Pn_Po = np.array([data[-1, 1] - data[0, 1], data[-1, 2] - data[0, 2]])
+    pn_po = np.array([data[-1, 1] - data[0, 1], data[-1, 2] - data[0, 2]])
     x0, y0 = data[0, 1], data[0, 2]
-    det = np.array([np.linalg.det([Pn_Po, [x - x0, y - y0]])
+    det = np.array([np.linalg.det([pn_po, [x - x0, y - y0]])
                     for x, y in zip(data[1:, 1], data[1:, 2])])
     return det
 
 
 def get_bin(dist: int, threshold: int = 1000) -> int:
     """
-    ...
+    Get bin by dist
 
-    :param dist: ...
+    :param dist: distance traveled
     :param threshold: threshold
     :return: bin
     """
@@ -94,8 +94,8 @@ def extractor(data: np.ndarray) -> np.ndarray:
         curve_speed / dttm
 
     # 9.
-    Pn_P0 = np.array([data[-1, 1] - data[0, 1], data[-1, 2] - data[0, 2]])
-    norm = np.linalg.norm(Pn_P0)
+    pn_p0 = np.array([data[-1, 1] - data[0, 1], data[-1, 2] - data[0, 2]])
+    norm = np.linalg.norm(pn_p0)
     det = get_det(data)
     mean_movement_offset = 0.0 if norm == 0.0 else \
         np.mean(det / norm)

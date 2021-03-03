@@ -1,8 +1,8 @@
 from src.pipeline.feature_extraction import extractor
 from src.pipeline.preprocessing import preprocessing
 from src.pipeline.model import authentication
-from config import RawData, TTIME_VALUE
 from typing import Callable, List
+from config import RawData
 from pynput import mouse
 import time
 
@@ -12,7 +12,7 @@ import time
 # https://pythonhosted.org/pynput/mouse.html#monitoring-the-mouse
 
 
-def data_capture_loop(user_id: int) -> None:
+def data_capture_loop(user_id: int, args) -> None:
     """
     Collects data from the user's computer mouse
         "timestamp" - time in seconds from start of recording
@@ -22,6 +22,7 @@ def data_capture_loop(user_id: int) -> None:
         "y"         - y-coordinate
 
     :param user_id: User ID
+    :param args: Command line arguments
     :return: None, when lock is needed
     """
     start_time: float = time.time()
@@ -30,11 +31,12 @@ def data_capture_loop(user_id: int) -> None:
 
     def check_end(action: Callable):
         """Decorator"""
+        ttime_value = args.ttime_value
 
         def wrapper(*args, **kwargs) -> bool:
             action(*args, **kwargs)
             ddtm = raw_data[-1].timestamp - raw_data[0].timestamp
-            return ddtm < TTIME_VALUE
+            return ddtm < ttime_value
 
         return wrapper
 
@@ -87,8 +89,13 @@ def data_capture_loop(user_id: int) -> None:
             listener.join()
             # stopped when the chek_end() returns False
         # ------------------------------------------ #
-        feature = extractor(preprocessing(raw_data))
-        if not authentication(user_id, feature):
+        feature = extractor(
+            data=preprocessing(
+                raw_data=raw_data,
+                min_n_action=args.min_n_action
+            )
+        )
+        if not authentication(user_id=user_id, feature=feature, args=args):
             break  # block
         raw_data.clear()
         # -- time: 15 - 30 ms ----------------------- #
@@ -97,6 +104,4 @@ def data_capture_loop(user_id: int) -> None:
 
 
 if __name__ == "__main__":
-    print("Run!")
-    data_capture_loop(0)
-    print("End of run.")
+    pass

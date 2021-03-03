@@ -1,4 +1,4 @@
-from config import MIN_N_ACTION, RawData
+from config import RawData
 from typing import List
 import numpy as np
 
@@ -22,15 +22,16 @@ def _quartile(data: np.ndarray, col: int) -> np.ndarray:
     return data
 
 
-def preprocessing(raw_data: List[RawData]) -> np.ndarray:
+def preprocessing(raw_data: List[RawData], min_n_action: int) -> np.ndarray:
     """
     Full preprocessing of raw data
 
     :param raw_data: raw data
+    :param min_n_action: the minimum number of actions
     :return: preprocessed data
     """
     data = list()
-    if len(raw_data) < MIN_N_ACTION:
+    if len(raw_data) < min_n_action:
         return np.array([])
 
     # for each observation...
