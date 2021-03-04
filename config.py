@@ -13,6 +13,8 @@ DATA_PATH: str = os.path.join(PROJECT_PATH, "data")
 
 CODE_PATH: str = os.path.join(PROJECT_PATH, "src")
 
+TEST_MODE_PATH = os.path.join(DATA_PATH, "test_mode")
+
 
 class OSType(Enum):
     Windows = 0
