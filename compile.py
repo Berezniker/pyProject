@@ -56,8 +56,9 @@ def compile_project(keep_temporary_file: bool = False) -> None:
         shutil.rmtree(os.path.join(PROJECT_PATH, "build"))
         os.remove(os.path.join(PROJECT_PATH, f"{APP_NAME}.spec"))
 
-    print(f"Compile time: {compile_time}",
-          f"    App size: {app_size} MB", sep='\n')
+    print(f"Compile status: {status_code}",
+          f"Compile time  : {compile_time}",
+          f"App size      : {app_size} MB", sep='\n')
     return
 
 

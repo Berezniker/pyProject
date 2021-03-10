@@ -1,8 +1,8 @@
 from src.pipeline.model import authentication
 from config import TEST_MODE_PATH
-import pandas as pd
 import numpy as np
 import time
+import csv
 
 
 start_time_implementation: float = time.time()
@@ -28,9 +28,10 @@ def get_feature(user_id: int) -> np.ndarray:
     :param user_id: User ID
     :yield: feature
     """
-    data = pd.read_csv(f"{TEST_MODE_PATH}/{user_id}_test_data.csv")
-    for row in data.iterrows():
-        yield row
+    with open(f"{TEST_MODE_PATH}/{user_id}_test_data.csv", newline='') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            yield np.array(row)
 
 
 def run_test_mode(args) -> None:

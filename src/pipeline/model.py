@@ -1,8 +1,8 @@
 from src.pipeline.database import DataDB
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import OneClassSVM
+from typing import Dict, Union
 from config import DATA_PATH
-from typing import Dict
 from math import exp
 import numpy as np
 import joblib
@@ -25,7 +25,7 @@ class TrustModel:
             C: float = 1.00,
             D: float = 1.00,
             lockout: float = 90.0,
-            one_class_svm_params: Dict[str] = {}
+            one_class_svm_params: Dict[str, Union[str, float]] = {}
     ):
         """
         Dynamic Trust Model (DTM)

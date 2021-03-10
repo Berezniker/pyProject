@@ -54,7 +54,7 @@ def add_arguments(argparser) -> None:
                            default=ONE_CLASS_SVM_PARAMS["nu"])
 
     # Test Mode Param
-    argparser.add_argument("--test-mode", dest="test_mode", type="store_true",
+    argparser.add_argument("--test-mode", dest="test_mode", action="store_true",
                            help="If Active, Run Program in Test Mode")
     argparser.add_argument("--real-user-id", dest="real_user_id", type=str)
     argparser.add_argument("--illegal-user-id", dest="illegal_user_id", type=str)
