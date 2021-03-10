@@ -1,7 +1,8 @@
+from typing import List, Dict, Union
 from collections import namedtuple
-from typing import Dict, Union
 from enum import Enum
 import platform
+import logging
 import os
 
 
@@ -42,6 +43,28 @@ OS_TYPE: OSType = get_os_type()
 # --- main.py
 
 DURATION_NOTIFICATION: int = 5
+
+LOG_LEVEL_DEBUG: str = "debug"
+LOG_LEVEL_INFO: str = "info"
+LOG_LEVEL_WARNING: str = "warning"
+LOG_LEVEL_ERROR: str = "error"
+LOG_LEVEL_CRITICAL: str = "critical"
+
+LOGGING_LEVEL: List[str] = [
+    LOG_LEVEL_DEBUG,
+    LOG_LEVEL_INFO,
+    LOG_LEVEL_WARNING,
+    LOG_LEVEL_ERROR,
+    LOG_LEVEL_CRITICAL
+]
+
+ARGS_TO_LEVEL: Dict[str, int] = {
+    LOG_LEVEL_DEBUG: logging.DEBUG,
+    LOG_LEVEL_INFO: logging.INFO,
+    LOG_LEVEL_WARNING: logging.WARNING,
+    LOG_LEVEL_ERROR: logging.ERROR,
+    LOG_LEVEL_CRITICAL: logging.CRITICAL
+}
 
 # --------------------------------------------------
 

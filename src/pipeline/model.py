@@ -5,6 +5,7 @@ from typing import Dict, Union
 from config import DATA_PATH
 from math import exp
 import numpy as np
+import logging
 import joblib
 import time
 import os
@@ -47,10 +48,12 @@ class TrustModel:
 
         if os.path.exists(self.model_path) and \
                 os.path.exists(self.scaler_path):
+            logging.info("Upload the trained model")
             self.scaler = joblib.load(filename=self.scaler_path)
             self.clf = joblib.load(filename=self.model_path)
             self.train = True
         else:
+            logging.info("Create a new model")
             self.scaler = StandardScaler()
             self.clf = OneClassSVM(**one_class_svm_params)
             self.train = False
@@ -62,10 +65,15 @@ class TrustModel:
         :param X: Set of samples
         :param save: dump model
         """
+        logging.info("Train the model")
+        train_time = time.time()
         X_transform = self.scaler.fit_transform(X)
         self.clf.fit(X_transform)
+        train_time = time.time() - train_time
+        logging.info(f"Train time: {train_time}")
         self.train = True
         if save:
+            logging.info("Save the trained model")
             joblib.dump(value=self.scaler, filename=self.scaler_path)
             joblib.dump(value=self.clf, filename=self.model_path)
         return self
@@ -92,7 +100,7 @@ class TrustModel:
         down = (1.0 / self.C) + exp(-(self.predict(X) - self.A) / self.B)
         delta_T = min(-self.D + up / down, self.C)
         self.T_value = min(max(self.T_value + delta_T, 0.0), 100.0)
-        return self.T_value < self.T_lockout
+        return self.T_value > self.T_lockout
 
 
 model = None
@@ -127,6 +135,7 @@ def authentication(user_id: int, feature: np.ndarray, args) -> bool:
     db = DataDB(user_id)
     if model.train:
         prediction = model.decision(feature)
+        logging.debug(f"Model Trust value: {model.T_value}")
         if prediction and model.T_value == 100.0:
             db.add(list(feature))
         if not prediction:
@@ -138,9 +147,10 @@ def authentication(user_id: int, feature: np.ndarray, args) -> bool:
     db_size = db.get_train_data_size()
     t = time.gmtime(round((args.min_train_size - db_size) * args.ttime_value))
     t = time.strftime('%H:%M:%S', t)
-    print(f"Data [{db_size:<6}/{args.min_train_size}] ~ "
-          f"{t} left until the end of data collection",
-          end='\r', flush=True)
+    logging.debug(
+        f"Data [{db_size:<6}/{args.min_train_size}] ~ "
+        f"{t} left until the end of data collection"
+    )
     # ---
 
     if db_size < args.min_train_size:
