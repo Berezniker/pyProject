@@ -37,6 +37,7 @@ def compile_project(keep_temporary_file: bool = False) -> None:
             --name {APP_NAME}
             --icon {ICON_APP_PATH}
             --hidden-import="sklearn.utils._cython_blas"
+            --hidden-import="scipy.spatial.transform._rotation_groups"
         {os.path.join(PROJECT_PATH, "main.py")}
     """
     # TODO add --noconsole

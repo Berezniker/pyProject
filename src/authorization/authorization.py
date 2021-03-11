@@ -1,6 +1,7 @@
 from src.authorization.database import UserDB
 import tkinter as tk
 import functools
+import logging
 
 
 # link:
@@ -10,18 +11,25 @@ import functools
 
 def one_shot_login(login: str, password: str) -> int:
     db = UserDB()
-    user_id = -1
     ok, problem = db.check_login(
         username=login,
         password=password
     )
-    if ok:
-        user_id = db.get_user_id(
+    if not ok:
+        logging.info(problem)
+        logging.info(f"Register a new user: (`{login}`, `{password}`)")
+        ok, problem = db.add(
             username=login,
             password=password
         )
-    else:
-        print(problem)
+        if not ok:
+            logging.error(problem)
+            return -1
+
+    user_id = db.get_user_id(
+        username=login,
+        password=password
+    )
     return user_id
 
 

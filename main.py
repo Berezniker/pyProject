@@ -6,7 +6,7 @@ from src.block import system_lock
 from config import (
     DURATION_NOTIFICATION, MIN_N_ACTION, MIN_TRAIN_SIZE,
     ONE_CLASS_SVM_PARAMS, TRUST_MODEL_PARAMS, TTIME_VALUE,
-    ARGS_TO_LEVEL, LOGGING_LEVEL
+    ARGS_TO_LEVEL, LOGGING_LEVEL, LOG_LEVEL_DEBUG
 )
 import argparse
 import logging
@@ -33,7 +33,7 @@ def add_arguments(argparser) -> None:
     argparser.add_argument("--min-train-size", dest="min_train_size", type=int, default=MIN_TRAIN_SIZE)
     argparser.add_argument("--duration-notification", dest="duration_notification", type=int,
                            default=DURATION_NOTIFICATION)
-    argparser.add_argument("--log-level", dest="log_level", type=str, default="info",
+    argparser.add_argument("--log-level", dest="log_level", type=str, default=LOG_LEVEL_DEBUG,
                            choices=LOGGING_LEVEL, help="Python built-in logging level")
 
     # Trust Model Params:
@@ -71,7 +71,7 @@ if __name__ == '__main__':
     add_arguments(argparser)
     args = argparser.parse_args()
     logging.basicConfig(
-        format="%(asctime)s : %(levelname)s : %(message)s",
+        format="%(asctime)s : %(levelname)-5s : %(message)s",
         datefmt="%d-%b-%y %H:%M:%S",
         level=ARGS_TO_LEVEL[args.log_level]
     )

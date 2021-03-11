@@ -41,14 +41,13 @@ class UserDB:
 
     def add(self, username: str, password: str) -> Tuple[bool, str]:
         if not is_valid_name(username):
-            return False, "Invalid username"
+            return False, f"Name `{username}` is not valid"
             # return False, f"Name `{username}` is not valid\n"\
             #               f"Valid Name:\n"\
             #               f" * 4 <= length name <= 16\n"\
             #               f" * consists only [a-zA-Z0-9_]"
         if self._username_exist(username):
-            return False, "Already registered"
-            # return False, f"User `{username}` is already registered"
+            return False, f"User `{username}` is already registered"
 
         sql = f"""
             INSERT INTO {self._table}
