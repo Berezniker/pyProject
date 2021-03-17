@@ -31,6 +31,7 @@ def compile_project(keep_temporary_file: bool = False) -> None:
     command = f"""
         pyinstaller
             --distpath {PROJECT_PATH}
+            --noconsole
             --clean
             --log-level ERROR
             --onefile
@@ -40,7 +41,6 @@ def compile_project(keep_temporary_file: bool = False) -> None:
             --hidden-import="scipy.spatial.transform._rotation_groups"
         {os.path.join(PROJECT_PATH, "main.py")}
     """
-    # TODO add --noconsole
     # TODO --paths venv/Lib ?
     command = " ".join(command.split())  # must be in one line
 

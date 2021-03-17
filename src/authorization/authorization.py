@@ -17,7 +17,7 @@ def one_shot_login(login: str, password: str) -> int:
     )
     if not ok:
         logging.info(problem)
-        logging.info(f"Register a new user: (`{login}`, `{password}`)")
+        logging.debug(f"Register a new user: (`{login}`, `{password}`)")
         ok, problem = db.add(
             username=login,
             password=password

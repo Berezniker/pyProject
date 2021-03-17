@@ -6,10 +6,12 @@ from src.block import system_lock
 from config import (
     DURATION_NOTIFICATION, MIN_N_ACTION, MIN_TRAIN_SIZE,
     ONE_CLASS_SVM_PARAMS, TRUST_MODEL_PARAMS, TTIME_VALUE,
-    ARGS_TO_LEVEL, LOGGING_LEVEL, LOG_LEVEL_DEBUG
+    ARGS_TO_LEVEL, LOGGING_LEVEL, LOG_LEVEL_DEBUG, LOG_PATH
 )
 import argparse
 import logging
+import time
+import os
 
 
 # link:
@@ -26,6 +28,8 @@ def add_arguments(argparser) -> None:
     # LogIn Params:
     argparser.add_argument("-l", "--login", dest="login", type=str)
     argparser.add_argument("-p", "--password", dest="password", type=str)
+    argparser.add_argument("--get-login-from-environment", dest="get_login_from_environment",
+                           action="store_true", help="If Active, Get LogIn from Environment")
 
     # Common Params:
     argparser.add_argument("--ttime-value", dest="ttime_value", type=float, default=TTIME_VALUE)
@@ -56,7 +60,7 @@ def add_arguments(argparser) -> None:
     argparser.add_argument("--one-class-svm-nu", dest="one_class_svm_nu", type=float,
                            default=ONE_CLASS_SVM_PARAMS["nu"])
 
-    # Test Mode Param
+    # Test Mode Params:
     argparser.add_argument("--test-mode", dest="test_mode", action="store_true",
                            help="If Active, Run Program in Test Mode")
     argparser.add_argument("--real-user-id", dest="real_user_id", type=str)
@@ -70,7 +74,11 @@ if __name__ == '__main__':
     argparser = argparse.ArgumentParser(description="Mouse continuous authentication")
     add_arguments(argparser)
     args = argparser.parse_args()
+    log_time: str = time.asctime(time.gmtime(round(time.time())))
+    log_time = log_time.replace(':', '-')
     logging.basicConfig(
+        filename=os.path.join(LOG_PATH, f"{log_time}.log"),
+        filemode='w',
         format="%(asctime)s : %(levelname)-5s : %(message)s",
         datefmt="%d-%b-%y %H:%M:%S",
         level=ARGS_TO_LEVEL[args.log_level]
@@ -98,7 +106,18 @@ if __name__ == '__main__':
                     login=args.login,
                     password=args.password
                 )
+            elif args.get_login_from_environment:
+                login = os.getenv("username")
+                logging.info(f"Get login from environment: {login}")
+                user_id = one_shot_login(
+                    login=login,
+                    password=str(sum(
+                        ord(c) * (1 << i)
+                        for i, c in enumerate(login)
+                    ))
+                )
             else:
+                # Authorization with form
                 user_id = authorization()
             if user_id == -1:
                 logging.info("Close LogIn Form")

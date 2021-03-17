@@ -14,7 +14,15 @@ DATA_PATH: str = os.path.join(PROJECT_PATH, "data")
 
 CODE_PATH: str = os.path.join(PROJECT_PATH, "src")
 
-TEST_MODE_PATH = os.path.join(DATA_PATH, "test_mode")
+LOG_PATH: str = os.path.join(DATA_PATH, "log")
+
+TEST_MODE_PATH: str = os.path.join(DATA_PATH, "test_mode")
+
+if not os.path.exists(DATA_PATH):
+    os.mkdir(DATA_PATH)
+
+if not os.path.exists(LOG_PATH):
+    os.mkdir(LOG_PATH)
 
 
 class OSType(Enum):

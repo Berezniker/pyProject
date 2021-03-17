@@ -1,3 +1,4 @@
 /data/userDB
 /data/model*
 /data/scaler*
+/data/log

@@ -60,7 +60,7 @@ def extractor(data: np.ndarray) -> np.ndarray:
     :return: feature - np.array = shape=(1, 16)
     """
     dt = np.diff(data[:, 0])
-    # dt[dt == 0] = 1e-3  # no duplicate timestamps
+    dt[dt == 0] = 1e-6
     dx = np.diff(data[:, 1])
     dy = np.diff(data[:, 2])
     dttm = data[-1, 0] - data[0, 0]  # < config.TTIME_VALUE
