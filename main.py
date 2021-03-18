@@ -11,6 +11,7 @@ from config import (
 import argparse
 import logging
 import time
+import sys
 import os
 
 
@@ -22,7 +23,7 @@ def add_arguments(argparser) -> None:
     """
     Parse command line arguments
 
-    param argparser: argparse.ArgumentParser
+    :param argparser: argparse.ArgumentParser
     :return: None
     """
     # LogIn Params:
@@ -39,6 +40,8 @@ def add_arguments(argparser) -> None:
                            default=DURATION_NOTIFICATION)
     argparser.add_argument("--log-level", dest="log_level", type=str, default=LOG_LEVEL_DEBUG,
                            choices=LOGGING_LEVEL, help="Python built-in logging level")
+    argparser.add_argument("--log-to-file", dest="log_to_file", action="store_true",
+                           help="If Active, Saves Logs to file")
 
     # Trust Model Params:
     argparser.add_argument("-A", "--trust-model-a", dest="trust_model_a", type=float,
@@ -71,13 +74,20 @@ def add_arguments(argparser) -> None:
 
 
 if __name__ == '__main__':
+    # Debug:
+    print("[stdout] Start", file=sys.stdout)
+    print("[stderr] Start", file=sys.stderr)
+
     argparser = argparse.ArgumentParser(description="Mouse continuous authentication")
     add_arguments(argparser)
     args = argparser.parse_args()
+
+    # ----- Logger -----
     log_time: str = time.asctime(time.gmtime(round(time.time())))
     log_time = log_time.replace(':', '-')
+    filename = os.path.join(LOG_PATH, f"{log_time}.log") if args.log_to_file else None
     logging.basicConfig(
-        filename=os.path.join(LOG_PATH, f"{log_time}.log"),
+        filename=filename,
         filemode='w',
         format="%(asctime)s : %(levelname)-5s : %(message)s",
         datefmt="%d-%b-%y %H:%M:%S",

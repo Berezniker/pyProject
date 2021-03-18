@@ -9,29 +9,37 @@ def add_arguments(argparser) -> None:
     """
     Parse command line arguments
 
+    :param argparser: argparse.ArgumentParser
     :return: None
     """
     argparser.add_argument(
         "-k", "--keep-temporary-file",
         dest="keep_temporary_file",
         action="store_true",
-        help="save temporary files after compilation"
+        help="If Active, Save temporary files after compilation"
+    )
+    argparser.add_argument(
+        "--no-console",
+        dest="no_console",
+        action="store_true",
+        help="If Active, Disable the console"
     )
     return
 
 
-def compile_project(keep_temporary_file: bool = False) -> None:
+def compile_project(args) -> None:
     """
     Compiles and builds the project with PyInstaller
     documentation: https://pyinstaller.readthedocs.io/en/stable/index.html
     options: https://pyinstaller.readthedocs.io/en/stable/usage.html
 
+    :param args: Command line arguments
     :return: None
     """
     command = f"""
         pyinstaller
             --distpath {PROJECT_PATH}
-            --noconsole
+            {"--noconsole" if args.no_console else ''}
             --clean
             --log-level ERROR
             --onefile
@@ -43,6 +51,7 @@ def compile_project(keep_temporary_file: bool = False) -> None:
     """
     # TODO --paths venv/Lib ?
     command = " ".join(command.split())  # must be in one line
+    print(f"command: {command}")
 
     compile_time = time.time()
     status_code = os.system(command)
@@ -52,7 +61,7 @@ def compile_project(keep_temporary_file: bool = False) -> None:
     app_path = os.path.join(PROJECT_PATH, f"{APP_NAME}.exe")
     app_size = os.path.getsize(app_path) >> 20  # Byte -> MegaByte
 
-    if status_code == 0 and not keep_temporary_file:
+    if status_code == 0 and not args.keep_temporary_file:
         # delete temporary data
         shutil.rmtree(os.path.join(PROJECT_PATH, "build"))
         os.remove(os.path.join(PROJECT_PATH, f"{APP_NAME}.spec"))
@@ -68,5 +77,5 @@ if __name__ == '__main__':
     add_arguments(argparser)
     args = argparser.parse_args()
     print("Run!")
-    compile_project(args.keep_temporary_file)
+    compile_project(args)
     print("End of run.")
