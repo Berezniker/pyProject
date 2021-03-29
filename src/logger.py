@@ -4,6 +4,7 @@ from src.pipeline.model import authentication
 from typing import Callable, List
 from config import RawData
 from pynput import mouse
+import logging
 import time
 
 
@@ -89,14 +90,16 @@ def data_capture_loop(user_id: int, args) -> None:
             listener.join()
             # stopped when the chek_end() returns False
         # ------------------------------------------ #
-        feature = extractor(
-            data=preprocessing(
-                raw_data=raw_data,
-                min_n_action=args.min_n_action
-            )
+        preprocessing_data = preprocessing(
+            raw_data=raw_data,
+            min_n_action=args.min_n_action
         )
-        if not authentication(user_id=user_id, feature=feature, args=args):
-            break  # block
+        if len(preprocessing_data) == 0:
+            logging.debug("Empty Preprocessing Data")
+        else:
+            feature = extractor(data=preprocessing_data)
+            if not authentication(user_id=user_id, feature=feature, args=args):
+                break  # block
         raw_data.clear()
         # -- time: 15 - 30 ms ----------------------- #
 

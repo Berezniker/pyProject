@@ -8,10 +8,10 @@ from config import (
     ONE_CLASS_SVM_PARAMS, TRUST_MODEL_PARAMS, TTIME_VALUE,
     ARGS_TO_LEVEL, LOGGING_LEVEL, LOG_LEVEL_DEBUG, LOG_PATH
 )
+import traceback
 import argparse
 import logging
 import time
-import sys
 import os
 
 
@@ -30,7 +30,7 @@ def add_arguments(argparser) -> None:
     argparser.add_argument("-l", "--login", dest="login", type=str)
     argparser.add_argument("-p", "--password", dest="password", type=str)
     argparser.add_argument("--get-login-from-environment", dest="get_login_from_environment",
-                           action="store_true", help="If Active, Get LogIn from Environment")
+                           action="store_false", help="If Active, Get LogIn from Environment")
 
     # Common Params:
     argparser.add_argument("--ttime-value", dest="ttime_value", type=float, default=TTIME_VALUE)
@@ -40,7 +40,7 @@ def add_arguments(argparser) -> None:
                            default=DURATION_NOTIFICATION)
     argparser.add_argument("--log-level", dest="log_level", type=str, default=LOG_LEVEL_DEBUG,
                            choices=LOGGING_LEVEL, help="Python built-in logging level")
-    argparser.add_argument("--log-to-file", dest="log_to_file", action="store_true",
+    argparser.add_argument("--log-to-file", dest="log_to_file", action="store_false",
                            help="If Active, Saves Logs to file")
 
     # Trust Model Params:
@@ -74,10 +74,6 @@ def add_arguments(argparser) -> None:
 
 
 if __name__ == '__main__':
-    # Debug:
-    print("[stdout] Start", file=sys.stdout)
-    print("[stderr] Start", file=sys.stderr)
-
     argparser = argparse.ArgumentParser(description="Mouse continuous authentication")
     add_arguments(argparser)
     args = argparser.parse_args()
@@ -152,4 +148,5 @@ if __name__ == '__main__':
     except (KeyboardInterrupt, EOFError):
         # Ctrl-C, Ctrl-Z, Ctrl-D signal handler
         logging.info("Signal received")
-        pass
+    except BaseException as e:
+        logging.error(traceback.print_exc())
