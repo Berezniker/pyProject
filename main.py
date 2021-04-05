@@ -30,7 +30,7 @@ def add_arguments(argparser) -> None:
     argparser.add_argument("-l", "--login", dest="login", type=str)
     argparser.add_argument("-p", "--password", dest="password", type=str)
     argparser.add_argument("--get-login-from-environment", dest="get_login_from_environment",
-                           action="store_false", help="If Active, Get LogIn from Environment")
+                           action="store_true", help="If Active, Get LogIn from Environment")
 
     # Common Params:
     argparser.add_argument("--ttime-value", dest="ttime_value", type=float, default=TTIME_VALUE)
@@ -40,7 +40,7 @@ def add_arguments(argparser) -> None:
                            default=DURATION_NOTIFICATION)
     argparser.add_argument("--log-level", dest="log_level", type=str, default=LOG_LEVEL_DEBUG,
                            choices=LOGGING_LEVEL, help="Python built-in logging level")
-    argparser.add_argument("--log-to-file", dest="log_to_file", action="store_false",
+    argparser.add_argument("--log-to-file", dest="log_to_file", action="store_true",
                            help="If Active, Saves Logs to file")
 
     # Trust Model Params:

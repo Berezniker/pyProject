@@ -142,7 +142,7 @@ def extractor(data: np.ndarray) -> np.ndarray:
         x = np.minimum(1, np.maximum(-1, np.sum(a * b, axis=0)[mask] / norm[mask]))
         angle = np.arccos(x)
         dt = (data[2:, 0] - data[:-2, 0])[mask]
-        mean_angular_velocity = np.mean(angle / dt)
+        mean_angular_velocity = 0.0 if dt == 0.0 else np.mean(angle / dt)
 
     feature = np.array([
         direction_bin(data, n_bin=8),

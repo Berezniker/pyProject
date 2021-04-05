@@ -135,7 +135,7 @@ def authentication(user_id: int, feature: np.ndarray, args) -> bool:
     db = DataDB(user_id)
     if model.train:
         prediction = model.decision(feature)
-        logging.debug(f"Model Trust value: {model.T_value}")
+        logging.debug(f"Model Trust value: {model.T_value:.5f}")
         if prediction and model.T_value == 100.0:
             db.add(list(feature))
         if not prediction:

@@ -136,7 +136,7 @@ MIN_N_ACTION: int = 5
 TRUST_MODEL_PARAMS: Dict[str, float] = {
     "A": 0.00,
     "B": 0.25,
-    "C": 1.00,
+    "C": 2.00,
     "D": 1.00,
     "lockout": 90.0
 }
